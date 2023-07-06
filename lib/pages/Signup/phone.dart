@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:untitled6/widgets/big_text.dart';
+import 'package:untitled6/widgets/small_text.dart';
 import '../../utils/colors.dart';
 import '../../utils/dimensions.dart';
 
@@ -19,6 +21,7 @@ class MyPhone extends StatefulWidget {
 class _MyPhoneState extends State<MyPhone> {
   TextEditingController countryController = TextEditingController();
   String _imagepath = '';
+  bool isLoading = false;
   /*final ImagePicker imgpicker = ImagePicker();
   Future getImage() async {
     try {
@@ -46,6 +49,7 @@ class _MyPhoneState extends State<MyPhone> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.mainColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: IconButton(
@@ -66,25 +70,22 @@ class _MyPhoneState extends State<MyPhone> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              const SizedBox(
-                height: 25,
+              SizedBox(
+                height: Dimensions.height45,
+              ),
+              BigText(text: 'Enter User Information',size: Dimensions.screenHeight/30,),
+              SizedBox(
+                height: Dimensions.height10,
               ),
               const Text(
-                "Enter User Information",
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const Text(
-                "The one and only place you get the best faster service!",
+                "We need to register your phone without getting started!",
                 style: TextStyle(
                   fontSize: 16,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(
-                height: 10,
+              SizedBox(
+                height: Dimensions.height10,
               ),
               Stack(
                 children: [
@@ -99,7 +100,7 @@ class _MyPhoneState extends State<MyPhone> {
                     backgroundImage: FileImage(File(_imagepath)),
                   ),
                   Positioned(child: ElevatedButton(
-                    onPressed: (){}, //getImage,
+                    onPressed: isLoading ? null : (){}, //getImage,
                     child: Icon(Icons.add),
                     style: ElevatedButton.styleFrom(
                       shape: CircleBorder(),
@@ -138,6 +139,7 @@ class _MyPhoneState extends State<MyPhone> {
                           onChanged: (value) {
                             MyPhone.username = value;
                           },
+                          enabled: isLoading ? false : true,
                           keyboardType: TextInputType.text,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
@@ -177,6 +179,7 @@ class _MyPhoneState extends State<MyPhone> {
                           onChanged: (value) {
                             phone = value;
                           },
+                          enabled: isLoading ? false : true,
                           keyboardType: TextInputType.phone,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
@@ -216,6 +219,7 @@ class _MyPhoneState extends State<MyPhone> {
                           onChanged: (value) {
                             MyPhone.password = value;
                           },
+                          enabled: isLoading ? false : true,
                           keyboardType: TextInputType.text,
                           obscureText: true,
                           decoration: const InputDecoration(
@@ -239,21 +243,15 @@ class _MyPhoneState extends State<MyPhone> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10))),
                     key: const Key("Send the code"),
-                    onPressed: () async {
-
-                      showDialog(
-                          context: context,
-                          builder: (_) => Center(child: CircularProgressIndicator(
-                            color: AppColors.mainColor,
-                            backgroundColor: AppColors.iconColor2,
-                            strokeWidth: Dimensions.width10,
-                            semanticsLabel: 'Loading...',
-                          ),)
-                      );
+                    onPressed: isLoading ? null : () async {
 
                       var currentPhoneNumber = validation(phone,MyPhone.password,MyPhone.username);
                       if (currentPhoneNumber != ''){
                         try {
+
+                          setState(() {
+                            isLoading = !isLoading;
+                          });
 
                           await FirebaseAuth.instance.verifyPhoneNumber(
                             phoneNumber: currentPhoneNumber,
@@ -262,14 +260,18 @@ class _MyPhoneState extends State<MyPhone> {
                             codeSent: (String verificationId, int? resendToken) {
                               MyPhone.verify = verificationId;
                               MyPhone.phone_number = currentPhoneNumber;
-                              Navigator.pop(context);
+
                               Navigator.pushNamed(context, 'verify');
                             },
                             codeAutoRetrievalTimeout: (String verificationId) {},
+
                           );
 
                         } catch (error) {
                           Navigator.pop(context);
+                          setState(() {
+                            isLoading = !isLoading;
+                          });
                           Get.snackbar(
                             "Sending verfycation code",
                             "Faild to send verfycation code to your phone number, please check your network connection...",
@@ -282,7 +284,17 @@ class _MyPhoneState extends State<MyPhone> {
                       }
 
                     },
-                    child: const Text("Send the code")),
+                    child: !isLoading ? BigText(text: "Send the code", color: Colors.white,)
+                      : Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          BigText(text: "Please wait", color: Colors.white,),
+                          SizedBox(width: Dimensions.width20,),
+                          const CircularProgressIndicator(color: Colors.white,),
+                        ],
+                      ),
+                ),
               ),
             ],
           ),

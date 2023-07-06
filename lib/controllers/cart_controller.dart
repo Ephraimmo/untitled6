@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:untitled6/utils/colors.dart';
 import '../models/produt.dart';
 
@@ -13,13 +14,14 @@ class CartController extends GetxController {
   var cartProductTotal   = 0.obs;
   var addingTocart = 0.obs;
   var checkList = [].obs;
+  final userInformation = GetStorage();
 
 
 
   var cart = 0.obs;
 
   updateCart(){
-    var Ref = FirebaseDatabase.instance.ref('+27 82 481 5280').onValue.listen((event) {
+    var Ref = FirebaseDatabase.instance.ref('${userInformation.read('Usernumbers')}').onValue.listen((event) {
       cart.value = 0;
       checkList.clear();
       Map? mydata = event.snapshot.value as Map?;
@@ -39,13 +41,11 @@ class CartController extends GetxController {
     var orderNumber = random(0,999999);
     addingTocart.value = 1;
 
-    DatabaseReference ref = FirebaseDatabase.instance.ref('+27 82 481 5280/$productName');
+    DatabaseReference ref = FirebaseDatabase.instance.ref('${userInformation.read('Usernumbers')}/$productName');
 
     checkList.forEach((element) {
       print(element);
     });
-
-
 
     if (!checkList.contains(productName))
       {

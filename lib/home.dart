@@ -3,6 +3,7 @@ import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:untitled6/pages/cart_product_details/cart_product_details.dart';
 import 'package:untitled6/pages/home/main_food_page.dart';
 import 'package:untitled6/pages/order_page/order_page.dart';
@@ -30,7 +31,7 @@ class _HomePageState extends State<HomePage> {
 
   final CartProducController cartProducController = Get.put(CartProducController());
   final OrderController orderController = Get.put(OrderController());
-
+  final KeepMe = GetStorage();
   @override
   Widget build(BuildContext context) {
     return Scaffold(

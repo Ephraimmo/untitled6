@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:untitled6/utils/dimensions.dart';
 import '../../../controllers/order_path_controller.dart';
 import '../../../utils/colors.dart';
@@ -16,19 +17,20 @@ class RunningOrder extends StatefulWidget {
 class _RunningOrderState extends State<RunningOrder> {
 
   final OrderPathController orderPathController = Get.put(OrderPathController());
+  final userInformation = GetStorage();
   @override
   void initState() {
     // TODO: implement initState
     orderPathController.ListPathOrder.clear();
     FirebaseDatabase.instance
-        .ref('+27 82 481 5280-path').onValue.listen((snapshot) {
+        .ref('${userInformation.read('Usernumbers')}-path').onValue.listen((snapshot) {
           Map? mydata = snapshot.snapshot.value as Map?;
 
           mydata!.entries.forEach((orderNumber) {
             for(int i = 0; i < orderPathController.listBrancheNames.length; i++){
 
               FirebaseDatabase.instance
-                  .ref('${orderPathController.listBrancheNames[i]}/+27 82 481 5280-${orderNumber.value}')
+                  .ref('${orderPathController.listBrancheNames[i]}/${userInformation.read('Usernumbers')}-${orderNumber.value}')
                   .once().asStream().forEach((element) {
                 if (element.snapshot.exists){
                   Map? myValues = element.snapshot.value as Map?;

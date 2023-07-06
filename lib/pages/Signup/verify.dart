@@ -2,9 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:pinput/pinput.dart';
 import 'package:untitled6/pages/Signup/phone.dart';
 import '../../controllers/user_controller.dart';
+import '../../utils/colors.dart';
+import '../../utils/dimensions.dart';
+import '../../widgets/big_text.dart';
 
 class MyVerify extends StatefulWidget {
   const MyVerify({Key? key}) : super(key: key);
@@ -18,6 +22,10 @@ class _MyVerifyState extends State<MyVerify> {
   CollectionReference users = FirebaseFirestore.instance.collection('AppUsers');
   UserController userController = Get.put(UserController());
   var smsCode = '';
+  bool isLoading = false;
+  bool KeepMeLogin = false;
+  final box = GetStorage();
+
   @override
   Widget build(BuildContext context) {
     final defaultPinTheme = PinTheme(
@@ -46,10 +54,11 @@ class _MyVerifyState extends State<MyVerify> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
+      backgroundColor: AppColors.mainColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: IconButton(
-          onPressed: () {
+          onPressed: isLoading ? null : () {
             Navigator.pop(context);
           },
           icon: const Icon(
@@ -93,15 +102,31 @@ class _MyVerifyState extends State<MyVerify> {
               ),
               Pinput(
                 length: 6,
-                 defaultPinTheme: defaultPinTheme,
+                 //defaultPinTheme: defaultPinTheme,
                  focusedPinTheme: focusedPinTheme,
                  submittedPinTheme: submittedPinTheme,
                 onChanged: (value) => smsCode = value,
                 showCursor: true,
                 onCompleted: (pin) => print(pin),
               ),
-              const SizedBox(
-                height: 20,
+              SizedBox(
+                height: Dimensions.height10/8,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  const Text("Keep me login?",
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  Checkbox(// The named parameter 'title' isn't defined.
+                    value: KeepMeLogin,
+                    onChanged: !isLoading ? (newValue) {
+                      setState(() {
+                        KeepMeLogin = newValue!;
+                      });
+                    } : null,
+                  ),
+                ],
               ),
               SizedBox(
                 width: double.infinity,
@@ -111,7 +136,10 @@ class _MyVerifyState extends State<MyVerify> {
                         primary: Colors.green.shade600,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10))),
-                        onPressed: () async {
+                        onPressed: isLoading ? null : () async {
+                            setState(() {
+                              isLoading = !isLoading;
+                            });
                             try{
                               // Create a PhoneAuthCredential with the code
                               AuthCredential credential = PhoneAuthProvider.credential(verificationId: MyPhone.verify, smsCode: smsCode);
@@ -123,38 +151,62 @@ class _MyVerifyState extends State<MyVerify> {
                                 'Username' : MyPhone.username,
                                 'phone_numbers' : MyPhone.phone_number,
                                 'password' : MyPhone.password,
+                                'AdderssUsed' : '',
                                 'profile_picture' : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo7CzD_doftOQmpBK5_0dhzlqtnD_Fqe8T432aUzcHTQ&s'
                               }).then((value) {
                                 userController.Username    = MyPhone.username;
                                 userController.password    = MyPhone.password;
                                 userController.Usernumbers = MyPhone.phone_number;
+                                box.write('Username',
+                                    userController.Usernumbers);
+                                box.write('password',
+                                    userController.password);
+                                box.write('Usernumbers',
+                                    userController.Usernumbers);
+                                box.write('KeepMeLogin', KeepMeLogin);
+                                box.save();
 
                                 Navigator.pushNamedAndRemoveUntil(context, "home", (route) => false);
                               });
 
                             }catch(e){
                               print("Error: " + e.hashCode.toString());
+
+                              setState(() {
+                                isLoading = !isLoading;
+                              });
                             }
 
                         },
-                    child: const Text("Verify Phone Number")),
+                    child: !isLoading ? BigText(text: "Verify Phone Number", color: Colors.white,)
+                        : Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        BigText(text: "Please wait", color: Colors.white,),
+                        SizedBox(width: Dimensions.width20,),
+                        const CircularProgressIndicator(color: Colors.white,),
+                      ],
+                    ), //const Text("")
+                ),
               ),
-              Row(
-                children: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          'phone',
-                          (route) => false,
-                        );
-                      },
-                      child: const Text(
-                        "Edit Phone Number ?",
-                        style: TextStyle(color: Colors.black),
-                      ))
-                ],
-              )
+              SizedBox(
+                height: Dimensions.height10,
+              ),
+              SizedBox(
+                width: double.infinity,
+                height: 45,
+                child: TextButton(
+                    onPressed: isLoading ? null : () async {
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        'phone',
+                            (route) => false,
+                      );
+                    },
+                    child: BigText(text: "Edit Phone Number ?", color: Colors.white,)
+                )
+              ),
             ],
           ),
         ),

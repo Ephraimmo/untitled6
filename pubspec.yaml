@@ -58,9 +58,10 @@ dependencies:
 
 
 dev_dependencies:
-  flutter_driver:
+  integration_test:
     sdk: flutter
-  test: any
+  flutter_test:
+    sdk: flutter
 
 
   # The "flutter_lints" package below contains a set of recommended lints to

@@ -167,14 +167,7 @@ class _AdderssViewState extends State<AdderssView> {
                                                                     primary: Colors.green,
                                                                     shape: RoundedRectangleBorder(
                                                                         borderRadius: BorderRadius.circular(Dimensions.radius15))),
-                                                                child: Row(
-                                                                  children: [
-                                                                    SmallText(text: 'Used',color: Colors.white),
-                                                                    SizedBox(width: Dimensions.width10,),
-                                                                    Icon(Icons.save)
-                                                                    //AppIcon(icon: Icons.save,backgroundColor: Colors.green,iconColor:Colors.white,)
-                                                                  ],
-                                                                )
+                                                                child: SmallText(text: 'Select',color: Colors.white),
                                                             ),
                                                             ElevatedButton(
                                                                 onPressed: (){
@@ -206,14 +199,7 @@ class _AdderssViewState extends State<AdderssView> {
                                                                     primary: Colors.red,
                                                                     shape: RoundedRectangleBorder(
                                                                         borderRadius: BorderRadius.circular(Dimensions.radius15))),
-                                                                child: Row(
-                                                                  children: [
-                                                                    SmallText(text: 'Delete',color: Colors.white),
-                                                                    SizedBox(width: Dimensions.width10,),
-                                                                    Icon(Icons.delete_forever)
-                                                                    //AppIcon(icon: Icons.delete_forever,backgroundColor: Colors.red,iconColor:Colors.white,)
-                                                                  ],
-                                                                )
+                                                                child: SmallText(text: 'Delete',color: Colors.white),
                                                             ),
                                                           ],
                                                         )
@@ -306,14 +292,6 @@ class _AdderssViewState extends State<AdderssView> {
                             setState(() {
                               latLng = LatLng(snapshot.data!.latitude, snapshot.data!.longitude);
                               latLngPickUp = LatLng(snapshot.data!.latitude, snapshot.data!.longitude);
-                             /* markers.add(
-                                Marker(
-                                  markerId: UserCurrentPostion,
-                                  infoWindow: InfoWindow(title: "User Location"),
-                                  icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
-                                  position: latLng,
-                                ),
-                              );*/
                               markers.add(
                                 Marker(
                                   markerId: markerId,
@@ -520,6 +498,18 @@ class _AdderssViewState extends State<AdderssView> {
                                                     shape: RoundedRectangleBorder(
                                                         borderRadius: BorderRadius.circular(10))),
                                                 onPressed: () async {
+
+                                                  if (   !streetName.text.trim().isNotEmpty
+                                                      || !CityName.text.trim().isNotEmpty
+                                                      || !stateName.text.trim().isNotEmpty
+                                                      || !zipCode.text.trim().isNotEmpty)
+                                                    {
+                                                      Get.snackbar(
+                                                          'title',
+                                                          'Fill in all the mandatory Fields - streetn ame, City, state and zip code');
+                                                      return;
+                                                    }
+
                                                   var addAdderss = '';
                                                   couter++;
                                                   if (box.read("SavedAllAderss") != null){
@@ -540,7 +530,7 @@ class _AdderssViewState extends State<AdderssView> {
                                                     zipCode.clear();
                                                   });
                                                 },
-                                                child: const Text("Save Adderss")),
+                                                child: BigText(text: 'Save Adderss',color: Colors.white,)),
                                           ),
                                         ),
                                         Expanded(
@@ -554,7 +544,7 @@ class _AdderssViewState extends State<AdderssView> {
                                                 onPressed: () async {
                                                   Navigator.pop(context);
                                                 },
-                                                child: const Text("cancel ")),
+                                                child: BigText(text: 'Cancel',color: Colors.white,)),
                                           ),
                                         ),
                                       ],

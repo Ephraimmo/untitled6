@@ -7,6 +7,7 @@ import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
@@ -28,6 +29,7 @@ class CartProductsDetails extends StatelessWidget {
 
   late List<String> nameOfOrders = [];
   Map<String, dynamic>? paymentIntent;
+  final userInformation = GetStorage();
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +38,6 @@ class CartProductsDetails extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         title: Obx(() => Container(
-
-
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -54,7 +54,7 @@ class CartProductsDetails extends StatelessWidget {
         margin: EdgeInsets.all(Dimensions.width20),
         child: FirebaseAnimatedList(
           defaultChild: Center(child: CircularProgressIndicator()),
-          query: FirebaseDatabase.instance.ref('+27 82 481 5280'),
+          query: FirebaseDatabase.instance.ref('${userInformation.read('Usernumbers')}'),
           itemBuilder: (BuildContext context, DataSnapshot snapshot,
               Animation<double> animation, int index) {
             Map? mydata = snapshot.value as Map?;
@@ -244,9 +244,9 @@ class CartProductsDetails extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  BigText(text: "Check out",color: Colors.white,),
+                  BigText(text: "Proceeed to Checkout",color: Colors.white,),
                   SizedBox(width: Dimensions.width30,),
-                  Icon(Icons.check_circle_outline)
+                  Icon(Icons.arrow_forward_ios_rounded)
                 ],
               ),),
           ),
@@ -313,7 +313,7 @@ class CartProductsDetails extends StatelessWidget {
 
     nameOfOrders.forEach((element) async {
       counter++;
-      await FirebaseDatabase.instance.ref('+27 82 481 5280/$element').onValue.forEach((orders) {
+      await FirebaseDatabase.instance.ref('${userInformation.read('Usernumbers')}/$element').onValue.forEach((orders) {
         Map? mydata = orders.snapshot.value as Map?;
 
         print(mydata!['orderChecked'] && !allBranches.contains(mydata!['branche']));
@@ -377,7 +377,7 @@ class CartProductsDetails extends StatelessWidget {
         nameOfOrders.forEach((element) async {
           counter++;
           await FirebaseDatabase.instance
-              .ref('+27 82 481 5280/$element')
+              .ref('${userInformation.read('Usernumbers')}/$element')
               .once().asStream().forEach((orders) async {
             Map? mydata = orders.snapshot.value as Map?;
 
@@ -389,7 +389,7 @@ class CartProductsDetails extends StatelessWidget {
               DateTime date = DateTime(now.year, now.month, now.day);
               foodList += ',' + mydata['productName'] + ' x ${mydata['number']}';
               foodUrlList.add(mydata['imageUrl']);
-              await FirebaseDatabase.instance.ref('${mydata!['branche']}/+27 82 481 5280-${orderNumber}').set({
+              await FirebaseDatabase.instance.ref('${mydata!['branche']}/${userInformation.read('Usernumbers')}-${orderNumber}').set({
                 'Accepted delivery' : false,
                 'Date'              : date.toString().replaceAll('00:00:00.000', ''),
                 'Food List'         : foodList,
@@ -400,17 +400,17 @@ class CartProductsDetails extends StatelessWidget {
                 'company name'      : mydata['branche'],
                 'ready'             : false,
                 'Placed Order'      : true,
-                'path'              : '+27 82 481 5280-${orderNumber}',
+                'path'              : '${userInformation.read('Usernumbers')}-${orderNumber}',
                 'type'              : 'Pickup',
                 'process'           : 'pending',
                 'Preparing Food'    : false
               }).then((value) {
                 FirebaseDatabase.instance
-                    .ref('+27 82 481 5280/$element').remove().then((value){
+                    .ref('${userInformation.read('Usernumbers')}/$element').remove().then((value){
                   print('nameOfOrders.remove(element) : ${nameOfOrders.length}');
 
                   FirebaseDatabase.instance
-                      .ref('+27 82 481 5280-path/${orderNumber}').set(orderNumber);
+                      .ref('${userInformation.read('Usernumbers')}-path/${orderNumber}').set(orderNumber);
 
                   print('nameOfOrders[counter] : ${nameOfOrders[counter]}');
                   nameOfOrders.removeAt(counter);

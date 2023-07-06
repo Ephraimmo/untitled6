@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:untitled6/pages/Signup/phone.dart';
 import 'package:untitled6/pages/Signup/verify.dart';
 import 'package:untitled6/pages/splash_screen/splash_screen.dart';
+import 'package:untitled6/pages/thank_you_page/thank_you_page.dart';
 import 'home.dart';
 import 'pages/cart_product_details/cart_product_details.dart';
 import 'pages/login/login.dart';

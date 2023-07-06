@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:untitled6/utils/colors.dart';
 
 import '../models/produt.dart';
@@ -10,16 +11,17 @@ class CartProducController extends GetxController {
   var productTotal = 0.obs;
   var hideBackBuutonCart = 0.obs;
   var product = <Product>[].obs;
+  final userInformation = GetStorage();
 
   selectOrders(String productName, bool value){
-    FirebaseDatabase.instance.ref('+27 82 481 5280/$productName').update({
+    FirebaseDatabase.instance.ref('${userInformation.read('Usernumbers')}/$productName').update({
       'orderChecked' : !value,
     });
   }
 
   increment(int number,String productName){
     if (number != 10) {
-      FirebaseDatabase.instance.ref("+27 82 481 5280").child(productName).update({
+      FirebaseDatabase.instance.ref("${userInformation.read('Usernumbers')}").child(productName).update({
         'number' : number,
       });
     }
@@ -36,11 +38,11 @@ class CartProducController extends GetxController {
 
   decrement(int number,String productName){
     if (number != 0) {
-      FirebaseDatabase.instance.ref("+27 82 481 5280").child(productName).update({
+      FirebaseDatabase.instance.ref("${userInformation.read('Usernumbers')}").child(productName).update({
         'number' : number,
       });
     }else if (number == 0){
-      FirebaseDatabase.instance.ref("+27 82 481 5280").child(productName).remove();
+      FirebaseDatabase.instance.ref("${userInformation.read('Usernumbers')}").child(productName).remove();
       Get.snackbar(
         'Removed',
         "The product was removed from cart list",
@@ -52,14 +54,13 @@ class CartProducController extends GetxController {
   }
 
   updateTotal(){
-    var Ref = FirebaseDatabase.instance.ref('+27 82 481 5280').onValue.listen((event) {
+    var Ref = FirebaseDatabase.instance.ref('${userInformation.read('Usernumbers')}').onValue.listen((event) {
       print("event.snapshot.value");
       productTotal.value = 0;
       Map? mydata = event.snapshot.value as Map?;
       mydata!.values.forEach((element) {
         int price = element['price'] * element['number'];
         productTotal.value = productTotal.value + price;
-
       });
     });
   }

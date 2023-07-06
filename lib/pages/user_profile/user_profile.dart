@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:untitled6/pages/login/login.dart';
 import '../../controllers/user_controller.dart';
 import '../../utils/colors.dart';
@@ -17,13 +18,15 @@ class UserProfile extends StatelessWidget {
   TextEditingController username = TextEditingController();
   TextEditingController password = TextEditingController();
   TextEditingController usernumber = TextEditingController();
-
+  TextEditingController userAdderss = TextEditingController();
+  final userInformation = GetStorage();
 
   @override
   Widget build(BuildContext context) {
-    username.text   = userController.Username;
-    usernumber.text = userController.Usernumbers;
-    password.text   = userController.password;
+    username.text   = userInformation.read('Username');
+    usernumber.text = userInformation.read('Usernumbers');
+    password.text   = userInformation.read('password');
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -51,7 +54,7 @@ class UserProfile extends StatelessWidget {
           ),
           SliverToBoxAdapter(
               child: StreamBuilder(
-                  stream: FirebaseFirestore.instance.collection('imageURLs').doc('+27824815280').snapshots(),
+                  stream: FirebaseFirestore.instance.collection('imageURLs').doc('${userInformation.read('Usernumbers')}').snapshots(),
                   builder: (context,snapshot) {
                     if (!snapshot.hasData) {
                       return  Center(child: CircularProgressIndicator(),);
@@ -191,6 +194,7 @@ class UserProfile extends StatelessWidget {
                               ),
                             ),
                             SizedBox(height: Dimensions.height10),
+                            SizedBox(height: Dimensions.height30,),
                             SizedBox(
                               width: double.infinity,
                               height: 45,
@@ -213,20 +217,6 @@ class UserProfile extends StatelessWidget {
                                   )),
                             ),
                             SizedBox(height: Dimensions.height10),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 45,
-                              child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      primary: AppColors.mainColor,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10))),
-                                  key: const Key("Send the code"),
-                                  onPressed: () async {
-
-                                  },
-                                  child: BigText(text: "Edit",color: Colors.white,)),
-                            ),
                             SizedBox(height: Dimensions.height30,),
                             SizedBox(
                               width: double.infinity,
@@ -238,6 +228,11 @@ class UserProfile extends StatelessWidget {
                                           borderRadius: BorderRadius.circular(10))),
                                   key: const Key("Send the code"),
                                   onPressed: () async {
+                                    userInformation.write('Usernumbers','');
+                                    userInformation.write('password','');
+                                    userInformation.write('Usernumbers','');
+                                    userInformation.write('KeepMeLogin', false);
+                                    userInformation.save();
                                     Get.to(const Login());
                                   },
                                   child: BigText(text: "Login out",color: Colors.white,)),

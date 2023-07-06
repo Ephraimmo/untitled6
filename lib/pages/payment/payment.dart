@@ -6,6 +6,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -16,7 +17,9 @@ import '../../widgets/app_icon.dart';
 import '../../widgets/big_text.dart';
 import '../../widgets/small_text.dart';
 import '../pick_address_location/address_save_page.dart';
+import '../thank_you_page/thank_you_page.dart';
 
+bool isLoading = false;
 
 class Payment extends StatefulWidget {
   final ListBracheNames;
@@ -28,18 +31,28 @@ class Payment extends StatefulWidget {
 
 class _PaymentState extends State<Payment> {
   Map<String, dynamic>? paymentIntent;
+  final username = TextEditingController();
+  final userphone = TextEditingController();
+  final userInformation = GetStorage();
   bool payWithCard = false;
-  bool payOnDelivery = false;
+  bool payWithCash = false;
+  bool deliveryOrder = false;
+  bool PickupOrder = false;
   double longitude = 0;
   double latitude = 0;
   List<String> nameOfOrders = [];
   late double total;
+
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     nameOfOrders = widget.ListBracheNames;
+    setState(() {
+      username.text = userInformation.read('Username');
+      userphone.text = userInformation.read('Usernumbers');
+    });
     total = widget.productTotal;
   }
 
@@ -57,7 +70,7 @@ class _PaymentState extends State<Payment> {
             top: Dimensions.width30, bottom: Dimensions.width30),
         child: StreamBuilder(
             stream: FirebaseFirestore.instance.collection('AppUsers').doc(
-                '+27824815280').snapshots(),
+                '${userphone.text}').snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return Center(child: CircularProgressIndicator(),);
@@ -111,7 +124,7 @@ class _PaymentState extends State<Payment> {
                                         left: Dimensions.width20,
                                         right: Dimensions.width20),
                                     child: InkWell(
-                                      onTap: () => Get.to(const AdderssView()),
+                                      onTap: isLoading ? null : () => Get.to(const AdderssView()),
                                       child: Column(
                                         children: [
                                           AppIcon(
@@ -127,7 +140,7 @@ class _PaymentState extends State<Payment> {
                                 ],
                               )),
                         ),
-                        SizedBox(height: Dimensions.height20,),
+                        SizedBox(height: Dimensions.height10,),
                         BigText(text: "Payment Method"),
                         Divider(color: AppColors.mainColor,
                             indent: Dimensions.width30,
@@ -135,9 +148,9 @@ class _PaymentState extends State<Payment> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: InkWell(
-                            onTap: () {
+                            onTap: isLoading ? null : () {
                               setState(() {
-                                payOnDelivery = true;
+                                payWithCash = true;
                                 payWithCard = false;
                               });
                             },
@@ -152,14 +165,14 @@ class _PaymentState extends State<Payment> {
                                 children: [
                                   AppIcon(icon: Icons.money,
                                     iconColor: Colors.green,),
-                                  SmallText(text: 'cash on delivery',
+                                  SmallText(text: 'Pay with cash',
                                       size: Dimensions.font15),
                                   SizedBox(width: Dimensions.width30,),
                                   SizedBox(width: Dimensions.width30,),
                                   Checkbox(
-                                      value: payOnDelivery, onChanged: (value) {
+                                      value: payWithCash, onChanged: isLoading ? null : (value) {
                                     setState(() {
-                                      payOnDelivery = true;
+                                      payWithCash = true;
                                       payWithCard = false;
                                     });
                                   }),
@@ -171,10 +184,10 @@ class _PaymentState extends State<Payment> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: InkWell(
-                            onTap: () {
+                            onTap: isLoading ? null : () {
                               setState(() {
                                 payWithCard = true;
-                                payOnDelivery = false;
+                                payWithCash = false;
                               });
                             },
                             child: PhysicalModel(
@@ -188,16 +201,15 @@ class _PaymentState extends State<Payment> {
                                 children: [
                                   AppIcon(icon: Icons.credit_card,
                                       iconColor: Colors.black),
-                                  SizedBox(width: 1,),
                                   SmallText(text: 'Pay with card',
                                       size: Dimensions.font15),
                                   SizedBox(width: Dimensions.width30,),
                                   SizedBox(width: Dimensions.width30,),
                                   Checkbox(
-                                      value: payWithCard, onChanged: (value) {
+                                      value: payWithCard, onChanged: isLoading ? null : (value) {
                                     setState(() {
                                       payWithCard = true;
-                                      payOnDelivery = false;
+                                      payWithCash = false;
                                     });
                                   }),
                                 ],
@@ -205,7 +217,68 @@ class _PaymentState extends State<Payment> {
                             ),
                           ),
                         ),
-                        SizedBox(height: Dimensions.height20,),
+                        SizedBox(height: Dimensions.height10,),
+                        BigText(text: "Deliver/Pickup Method"),
+                        Divider(color: AppColors.mainColor,
+                            indent: Dimensions.width30,
+                            endIndent: Dimensions.width30),
+
+                        Container(
+                          width: double.infinity,
+                          margin: EdgeInsets.only(left: Dimensions.width30,right: Dimensions.width30),
+                          child: PhysicalModel(
+                            color: Colors.white,
+                            elevation: 5,
+                            shadowColor: AppColors.mainColor,
+                            borderRadius: BorderRadius.circular(20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                InkWell(
+                                  onTap: isLoading ? null : (){
+                                    setState(() {
+                                      deliveryOrder = true;
+                                      PickupOrder = false;
+                                    });
+                                  },
+                                  child: Row(
+                                    children: [
+                                      SmallText(text: 'Deliver order',size: Dimensions.font15),
+                                      Checkbox(value: deliveryOrder, onChanged: isLoading ? null : (value){
+                                        setState(() {
+                                          deliveryOrder = true;
+                                          PickupOrder = false;
+                                        });
+                                      }),
+                                    ],
+                                  ),
+                                ),
+                                InkWell(
+                                  onTap: isLoading ? null : (){
+                                    setState(() {
+                                      deliveryOrder = false;
+                                      PickupOrder = true;
+                                    });
+                                  },
+                                  child: Row(
+                                    children: [
+                                      SmallText(text: 'Pickup order',size: Dimensions.font15),
+                                      Checkbox(value: PickupOrder, onChanged: isLoading ? null : (value){
+                                        setState(() {
+                                          deliveryOrder = false;
+                                          PickupOrder = true;
+                                        });
+                                      }),
+                                    ],
+                                  ),
+                                ),
+
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: Dimensions.height10,),
                         BigText(text: "User Information"),
                         Divider(color: AppColors.mainColor,
                             indent: Dimensions.width30,
@@ -239,6 +312,7 @@ class _PaymentState extends State<Payment> {
                                   child: TextField(
                                     onChanged: (value) {},
                                     enabled: false,
+                                    controller: username,
                                     keyboardType: TextInputType.text,
                                     decoration: const InputDecoration(
                                       border: InputBorder.none,
@@ -277,6 +351,7 @@ class _PaymentState extends State<Payment> {
                                   child: TextField(
                                     onChanged: (value) {},
                                     enabled: false,
+                                    controller: userphone,
                                     keyboardType: TextInputType.text,
                                     decoration: const InputDecoration(
                                       border: InputBorder.none,
@@ -287,46 +362,7 @@ class _PaymentState extends State<Payment> {
                           ),
                         ),
                         SizedBox(height: Dimensions.height10,),
-                        Container(
-                          height: 55,
-                          margin: EdgeInsets.only(left: Dimensions.width30,
-                              right: Dimensions.width30),
-                          decoration: BoxDecoration(
-                              border: Border.all(width: 1, color: Colors.grey),
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              SizedBox(
-                                width: 40,
-                                child: Icon(Icons.password),
-                              ),
-                              const Text(
-                                "|",
-                                style: TextStyle(
-                                    fontSize: 33, color: Colors.grey),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Expanded(
-                                  child: TextField(
-                                    onChanged: (value) {},
-                                    enabled: false,
-                                    keyboardType: TextInputType.text,
-                                    decoration: const InputDecoration(
-                                      border: InputBorder.none,
-                                      hintText: "******",
-                                    ),
-                                  ))
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: Dimensions.height10),
-                        Spacer(),
+
                       ],
                     )
                 );
@@ -373,23 +409,47 @@ class _PaymentState extends State<Payment> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10))),
                   key: const Key("Place Order"),
-                  onPressed: () async {
-                    if (!payWithCard && !payOnDelivery)
+                  onPressed: isLoading ? null : () async {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    if (!payWithCard && !payWithCash) {
                       Get.snackbar('Payment Method',
                           'Plaese choose payment method...');
-                    else if (payWithCard) {
-                      print('object');
-                      if (latitude == 0 && longitude == 0)
-                        Get.snackbar('Pickup Adderss', "The pickup adderss point was not found");
-                      else{
-                        await makePayment(latitude: latitude,longitude: longitude,total: total.toString().replaceAll('.', ''));
-                      }
-                    } else if (payOnDelivery) {
-                      placeOrderOnPickup();
+                      setState(() {
+                        isLoading = false;
+                      });
                     }
+                    else if (!deliveryOrder && !PickupOrder) {
+                      Get.snackbar('Delivery/Pickup Method',
+                          'Plaese choose Delivery or Pickup method');
+                      setState(() {
+                        isLoading = false;
+                      });
+                    }
+                    else if (payWithCash){
+                      if (PickupOrder){
+                        placeOrderOnPickup('cash');
+                      }else if (deliveryOrder){
+                        placeOrderOnDelivery('cash');
+                      }
+
+                    }else if (payWithCard){
+                      await makePayment(latitude: latitude,longitude: longitude,total: total.toString().replaceAll('.', ''));
+                    }
+
                   },
-                  child: BigText(text: "Place Order", color: Colors
-                      .white,)),
+                  child: !isLoading ? BigText(text: "Place Order", color: Colors.white,)
+                                     : Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            BigText(text: "Please wait", color: Colors.white,),
+                                            SizedBox(width: Dimensions.width20,),
+                                            const CircularProgressIndicator(color: Colors.white,),
+                                          ],
+                                         ),
+              ),
             ),
           ],
         ),
@@ -420,11 +480,15 @@ class _PaymentState extends State<Payment> {
               style: ThemeMode.light,
               merchantDisplayName: 'Abhi',
               googlePay: gpay))
-          .then((value) {});
+          .then((value) {
+      });
 
       //STEP 3: Display Payment sheet
       displayPaymentSheet(latitude: latitude, longitude: longitude);
     } catch (err) {
+      setState(() {
+        isLoading = false;
+      });
       print(err);
     }
   }
@@ -433,9 +497,16 @@ class _PaymentState extends State<Payment> {
       {required double latitude, required double longitude}) async {
     try {
       await Stripe.instance.presentPaymentSheet().then((value) {
-        placeOrderOnDelivery();
+        if (PickupOrder){
+          placeOrderOnPickup('card');
+        }else if (deliveryOrder){
+          placeOrderOnDelivery('card');
+        }
       });
     } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       Get.snackbar('Payment Error', 'Your order was not successfully',
           backgroundColor: AppColors.mainColor);
       print('$e');
@@ -460,10 +531,11 @@ class _PaymentState extends State<Payment> {
       return json.decode(response.body);
     } catch (err) {
       throw Exception(err.toString());
+
     }
   }
 
-  placeOrderOnPickup(){
+  placeOrderOnPickup(var payWith){
     int orderNumber = random(1000, 999999);
     String foodList = '';
     List<String> foodUrlList = [];
@@ -471,7 +543,7 @@ class _PaymentState extends State<Payment> {
     nameOfOrders.forEach((element) async {
       counter++;
       await FirebaseDatabase.instance
-          .ref('+27 82 481 5280/$element')
+          .ref('${userInformation.read('Usernumbers')}/$element')
           .once().asStream().forEach((orders) async {
         Map? mydata = orders.snapshot.value as Map?;
 
@@ -484,7 +556,7 @@ class _PaymentState extends State<Payment> {
               ',' + mydata['productName'] + ' x ${mydata['number']}';
           foodUrlList.add(mydata['imageUrl']);
           await FirebaseDatabase.instance.ref(
-              '${mydata!['branche']}/+27 82 481 5280-${orderNumber}').set({
+              '${mydata!['branche']}/${userInformation.read('Usernumbers')}-${orderNumber}').set({
             'Accepted delivery': false,
             'Date': date.toString().replaceAll('00:00:00.000', ''),
             'Food List': foodList,
@@ -495,18 +567,19 @@ class _PaymentState extends State<Payment> {
             'company name': mydata['branche'],
             'ready': false,
             'Placed Order': true,
-            'path': '+27 82 481 5280-${orderNumber}',
+            'path': '${userInformation.read('Usernumbers')}-${orderNumber}',
             'type': 'Pickup',
             'process': 'pending',
+            'payWithCash': payWith,
             'Preparing Food': false
           }).then((value) {
             FirebaseDatabase.instance
-                .ref('+27 82 481 5280/$element').remove().then((value) {
+                .ref('${userInformation.read('Usernumbers')}/$element').remove().then((value) {
               print(
                   'nameOfOrders.remove(element) : ${nameOfOrders.length}');
 
               FirebaseDatabase.instance
-                  .ref('+27 82 481 5280-path/${orderNumber}').set(
+                  .ref('${userInformation.read('Usernumbers')}-path/${orderNumber}').set(
                   orderNumber);
 
               print('nameOfOrders[counter] : ${nameOfOrders[counter]}');
@@ -518,11 +591,12 @@ class _PaymentState extends State<Payment> {
         }
       });
     });
-    Navigator.pushNamedAndRemoveUntil(context, 'home', (route) => false);
-    Get.snackbar('Payment Successfully', 'Your order was successfully',
-        backgroundColor: AppColors.mainColor);
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ThankYou(paymentMethod: payWith,)),);
+    setState(() {
+      isLoading = false;
+    });
   }
-  placeOrderOnDelivery(){
+  placeOrderOnDelivery(var payWith){
     int orderNumber = random(1000, 999999);
     String foodList = '';
     List<String> foodUrlList = [];
@@ -530,7 +604,7 @@ class _PaymentState extends State<Payment> {
     nameOfOrders.forEach((element) async {
       counter++;
       await FirebaseDatabase.instance
-          .ref('+27 82 481 5280/$element')
+          .ref('${userInformation.read('Usernumbers')}/$element')
           .once().asStream().forEach((orders) async {
         Map? mydata = orders.snapshot.value as Map?;
 
@@ -543,7 +617,7 @@ class _PaymentState extends State<Payment> {
               ',' + mydata['productName'] + ' x ${mydata['number']}';
           foodUrlList.add(mydata['imageUrl']);
           await FirebaseDatabase.instance.ref(
-              '${mydata!['branche']}/+27 82 481 5280-${orderNumber}').set({
+              '${mydata!['branche']}/${userInformation.read('Usernumbers')}-${orderNumber}').set({
             'Accepted delivery': false,
             'Date': date.toString().replaceAll('00:00:00.000', ''),
             'Food List': foodList,
@@ -555,19 +629,20 @@ class _PaymentState extends State<Payment> {
             'Time': '19:16',
             'company name': mydata['branche'],
             'ready': false,
+            'payWithCash': payWith,
             'Placed Order': true,
-            'path': '+27 82 481 5280-${orderNumber}',
+            'path': '${userInformation.read('Usernumbers')}-${orderNumber}',
             'type': 'Delivery',
             'process': 'pending',
             'Preparing Food': false
           }).then((value) {
             FirebaseDatabase.instance
-                .ref('+27 82 481 5280/$element').remove().then((value) {
+                .ref('${userInformation.read('Usernumbers')}/$element').remove().then((value) {
               print(
                   'nameOfOrders.remove(element) : ${nameOfOrders.length}');
 
               FirebaseDatabase.instance
-                  .ref('+27 82 481 5280-path/${orderNumber}').set(
+                  .ref('${userInformation.read('Usernumbers')}-path/${orderNumber}').set(
                   orderNumber);
 
               print('nameOfOrders[counter] : ${nameOfOrders[counter]}');
@@ -579,9 +654,10 @@ class _PaymentState extends State<Payment> {
         }
       });
     });
-    Navigator.pushNamedAndRemoveUntil(context, 'home', (route) => false);
-    Get.snackbar('Payment Successfully', 'Your order was successfully',
-        backgroundColor: AppColors.mainColor);
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ThankYou(paymentMethod: payWith,)),);
+    setState(() {
+      isLoading = false;
+    });
   }
 }
 

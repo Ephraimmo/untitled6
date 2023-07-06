@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:lottie/lottie.dart';
 import 'package:untitled6/utils/colors.dart';
 import 'package:untitled6/utils/dimensions.dart';
@@ -24,12 +25,14 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    splashScreenControllerNew.startSplashScreen();
+
+    splashScreenControllerNew.startSplashScreen(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.mainColor,
       body: Container(
         width: Dimensions.screenWidth,
         height: Dimensions.screenHeight,
