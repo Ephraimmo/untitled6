@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
-
+import  'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +31,7 @@ class Payment extends StatefulWidget {
 
 class _PaymentState extends State<Payment> {
   Map<String, dynamic>? paymentIntent;
-  final username = TextEditingController();
+  final userNote = TextEditingController();
   final userphone = TextEditingController();
   final userInformation = GetStorage();
   bool payWithCard = false;
@@ -50,7 +50,6 @@ class _PaymentState extends State<Payment> {
     super.initState();
     nameOfOrders = widget.ListBracheNames;
     setState(() {
-      username.text = userInformation.read('Username');
       userphone.text = userInformation.read('Usernumbers');
     });
     total = widget.productTotal;
@@ -62,313 +61,292 @@ class _PaymentState extends State<Payment> {
       appBar: AppBar(
             title: const Text('Check out'),
             centerTitle: true,
+            leading: Padding(
+              padding: EdgeInsets.only(left: Dimensions.width10,right: Dimensions.width10,top: Dimensions.width10,bottom: Dimensions.width10),
+              child: InkWell(
+                  onTap: (){
+                    Navigator.pop(context);
+                  },
+                  child: AppIcon(icon: Icons.arrow_back_ios_new_outlined,iconColor: AppColors.mainColor,)),
+            ),
             backgroundColor: AppColors.mainColor,
         ),
-      body: Container(
-        padding: const EdgeInsets.all(10),
-        margin: EdgeInsets.only(
-            top: Dimensions.width30, bottom: Dimensions.width30),
-        child: StreamBuilder(
-            stream: FirebaseFirestore.instance.collection('AppUsers').doc(
-                '${userphone.text}').snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return Center(child: CircularProgressIndicator(),);
-              } else {
-                var positionLength =snapshot.data!.get('AdderssUsed').toString().split(',').length;
-                longitude = double.parse(snapshot.data!.get('AdderssUsed').toString().split(',')[positionLength - 2]);
-                latitude = double.parse(snapshot.data!.get('AdderssUsed').toString().split(',')[positionLength - 1]);
-                return snapshot.data!.get('AdderssUsed') == '' ? BigText(
-                    text: 'Select the adderss to use for delivery')
-                    :
-                PhysicalModel(
-                    color: Colors.white,
-                    elevation: 5,
-                    shadowColor: AppColors.mainColor,
-                    borderRadius: BorderRadius.circular(20),
-                    child: Column(
-                      children: [
-                        SizedBox(height: Dimensions.height45,),
-                        BigText(text: "Used Delivery Adderss"),
-                        Divider(color: AppColors.mainColor,
-                            indent: Dimensions.width30,
-                            endIndent: Dimensions.width30),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(Dimensions
-                                .radius20),
-                          ),
-                          child: Padding(padding: EdgeInsets.all(Dimensions
-                              .width20),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Expanded(child: Column(
-                                      mainAxisAlignment: MainAxisAlignment
-                                          .start,
-                                      crossAxisAlignment: CrossAxisAlignment
-                                          .start,
-                                      children: List.generate(snapshot.data!
-                                          .get('AdderssUsed')
-                                          .toString()
-                                          .split(',')
-                                          .length - 2, (index) =>
-                                          SmallText(text: '${snapshot.data!.get(
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          margin: EdgeInsets.only(
+              top: Dimensions.width30, bottom: Dimensions.width30),
+          child: StreamBuilder(
+              stream: FirebaseFirestore.instance.collection('AppUsers').doc(
+                  '${userphone.text}').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator(),);
+                } else {
+                  if (snapshot.data!.get('AdderssUsed') != '') {
+                    var positionLength = snapshot.data!
+                        .get('AdderssUsed')
+                        .toString()
+                        .split(',')
+                        .length;
+                    longitude = double.parse(snapshot.data!
+                        .get('AdderssUsed')
+                        .toString()
+                        .split(',')[positionLength - 2]);
+                    latitude = double.parse(snapshot.data!
+                        .get('AdderssUsed')
+                        .toString()
+                        .split(',')[positionLength - 1]);
+                  }
+                  return snapshot.data!.get('AdderssUsed') == '' ? BigText(
+                      text: 'Select the adderss to use for delivery')
+                      :
+                  PhysicalModel(
+                      color: Colors.white,
+                      elevation: 5,
+                      shadowColor: AppColors.mainColor,
+                      borderRadius: BorderRadius.circular(20),
+                      child: Column(
+                        children: [
+                          SizedBox(height: Dimensions.height45,),
+                          BigText(text: "Used Delivery Adderss"),
+                          Divider(color: AppColors.mainColor,
+                              indent: Dimensions.width30,
+                              endIndent: Dimensions.width30),
+                          Container(
+                            height: Dimensions.height10*9,
+                            padding: EdgeInsets.all(Dimensions.width10-2),
+                            margin: EdgeInsets.only(top: Dimensions.height10-5,left: Dimensions.width10,right: Dimensions.width10),
+                            child: PhysicalModel(
+                                color: Colors.white,
+                                elevation: 5,
+                                shadowColor: AppColors.mainColor,
+                                borderRadius: BorderRadius.circular(20),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Container(
+                                      width: Dimensions.width20*24,
+                                      child: Column(
+                                          mainAxisAlignment: MainAxisAlignment
+                                              .start,
+                                          crossAxisAlignment: CrossAxisAlignment
+                                              .start,
+                                          children: List.generate(snapshot.data!
+                                              .get('AdderssUsed')
+                                              .toString()
+                                              .split(',')
+                                              .length - 2, (index) =>
+                                          index == 0 ? Row(children: [
+                                            SizedBox(width: Dimensions.width10,),
+                                            SmallText(text: '${snapshot.data!.get(
+                                                'AdderssUsed').toString().split(
+                                                ',')[index]},',
+                                                size: Dimensions.font15,
+                                                color: AppColors.paraColor)
+                                          ],) : SmallText(text: '${snapshot.data!.get(
                                               'AdderssUsed').toString().split(
                                               ',')[index]},',
                                               size: Dimensions.font15,
                                               color: AppColors.paraColor),)
-                                  ),),
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                        left: Dimensions.width20,
-                                        right: Dimensions.width20),
-                                    child: InkWell(
-                                      onTap: isLoading ? null : () => Get.to(const AdderssView()),
-                                      child: Column(
-                                        children: [
-                                          AppIcon(
-                                              icon: Icons.location_on_outlined,
-                                              backgroundColor: AppColors
-                                                  .iconColor1),
-                                          SmallText(text: 'Change',
-                                            color: AppColors.mainColor,)
-                                        ],
                                       ),
                                     ),
-                                  ),
-                                ],
-                              )),
-                        ),
-                        SizedBox(height: Dimensions.height10,),
-                        BigText(text: "Payment Method"),
-                        Divider(color: AppColors.mainColor,
-                            indent: Dimensions.width30,
-                            endIndent: Dimensions.width30),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: InkWell(
-                            onTap: isLoading ? null : () {
-                              setState(() {
-                                payWithCash = true;
-                                payWithCard = false;
-                              });
-                            },
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          left: Dimensions.width20,
+                                          right: Dimensions.width20,
+                                          top: Dimensions.height10
+                                      ),
+                                      child: InkWell(
+                                        onTap: isLoading ? null : () => Get.to(const AdderssView()),
+                                        child: Column(
+                                          children: [
+                                            AppIcon(
+                                                icon: Icons.edit_location_alt,
+                                                backgroundColor: AppColors
+                                                    .iconColor1),
+                                            SmallText(text: 'Change',
+                                              color: Colors.black,)
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                            ),
+                          ),
+                          SizedBox(height: Dimensions.height10,),
+                          BigText(text: "Payment Method"),
+                          Divider(color: AppColors.mainColor,
+                              indent: Dimensions.width30,
+                              endIndent: Dimensions.width30),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: InkWell(
+                              onTap: isLoading ? null : () {
+                                setState(() {
+                                  payWithCash = true;
+                                  payWithCard = false;
+                                });
+                              },
+                              child: PhysicalModel(
+                                color: Colors.white,
+                                elevation: 5,
+                                shadowColor: AppColors.mainColor,
+                                borderRadius: BorderRadius.circular(20),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment
+                                      .spaceEvenly,
+                                  children: [
+                                    AppIcon(icon: Icons.monetization_on_outlined,
+                                      iconColor: Colors.green,),
+                                    SmallText(text: 'Pay with cash',
+                                        size: Dimensions.font15),
+                                    SizedBox(width: Dimensions.width30,),
+                                    SizedBox(width: Dimensions.width30,),
+                                    Checkbox(
+                                        value: payWithCash, onChanged: isLoading ? null : (value) {
+                                      setState(() {
+                                        payWithCash = true;
+                                        payWithCard = false;
+                                      });
+                                    }),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: InkWell(
+                              onTap: isLoading ? null : () {
+                                setState(() {
+                                  payWithCard = true;
+                                  payWithCash = false;
+                                });
+                              },
+                              child: PhysicalModel(
+                                color: Colors.white,
+                                elevation: 5,
+                                shadowColor: AppColors.mainColor,
+                                borderRadius: BorderRadius.circular(20),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment
+                                      .spaceEvenly,
+                                  children: [
+                                    AppIcon(icon: Icons.credit_card,
+                                        iconColor: Colors.black),
+                                    SmallText(text: 'Pay with card',
+                                        size: Dimensions.font15),
+                                    SizedBox(width: Dimensions.width30,),
+                                    SizedBox(width: Dimensions.width30,),
+                                    Checkbox(
+                                        value: payWithCard, onChanged: isLoading ? null : (value) {
+                                      setState(() {
+                                        payWithCard = true;
+                                        payWithCash = false;
+                                      });
+                                    }),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: Dimensions.height10,),
+                          BigText(text: "Deliver/Pickup Method"),
+                          Divider(color: AppColors.mainColor,
+                              indent: Dimensions.width30,
+                              endIndent: Dimensions.width30),
+
+                          Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.only(left: Dimensions.width30,right: Dimensions.width30),
                             child: PhysicalModel(
                               color: Colors.white,
                               elevation: 5,
                               shadowColor: AppColors.mainColor,
                               borderRadius: BorderRadius.circular(20),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment
-                                    .spaceEvenly,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  AppIcon(icon: Icons.money,
-                                    iconColor: Colors.green,),
-                                  SmallText(text: 'Pay with cash',
-                                      size: Dimensions.font15),
-                                  SizedBox(width: Dimensions.width30,),
-                                  SizedBox(width: Dimensions.width30,),
-                                  Checkbox(
-                                      value: payWithCash, onChanged: isLoading ? null : (value) {
-                                    setState(() {
-                                      payWithCash = true;
-                                      payWithCard = false;
-                                    });
-                                  }),
+                                  InkWell(
+                                    onTap: isLoading ? null : (){
+                                      setState(() {
+                                        deliveryOrder = false;
+                                        PickupOrder = true;
+                                      });
+                                    },
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        SmallText(text: 'Pickup order',size: Dimensions.font15),
+                                        Checkbox(value: PickupOrder, onChanged: isLoading ? null : (value){
+                                          setState(() {
+                                            deliveryOrder = false;
+                                            PickupOrder = true;
+                                          });
+                                        }),
+                                      ],
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: isLoading ? null : (){
+                                      setState(() {
+                                        deliveryOrder = true;
+                                        PickupOrder = false;
+                                      });
+                                    },
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        SmallText(text: 'Deliver order',size: Dimensions.font15),
+                                        Checkbox(value: deliveryOrder, onChanged: isLoading ? null : (value){
+                                          setState(() {
+                                            deliveryOrder = true;
+                                            PickupOrder = false;
+                                          });
+                                        }),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: InkWell(
-                            onTap: isLoading ? null : () {
-                              setState(() {
-                                payWithCard = true;
-                                payWithCash = false;
-                              });
-                            },
-                            child: PhysicalModel(
-                              color: Colors.white,
-                              elevation: 5,
-                              shadowColor: AppColors.mainColor,
-                              borderRadius: BorderRadius.circular(20),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment
-                                    .spaceEvenly,
-                                children: [
-                                  AppIcon(icon: Icons.credit_card,
-                                      iconColor: Colors.black),
-                                  SmallText(text: 'Pay with card',
-                                      size: Dimensions.font15),
-                                  SizedBox(width: Dimensions.width30,),
-                                  SizedBox(width: Dimensions.width30,),
-                                  Checkbox(
-                                      value: payWithCard, onChanged: isLoading ? null : (value) {
-                                    setState(() {
-                                      payWithCard = true;
-                                      payWithCash = false;
-                                    });
-                                  }),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: Dimensions.height10,),
-                        BigText(text: "Deliver/Pickup Method"),
-                        Divider(color: AppColors.mainColor,
-                            indent: Dimensions.width30,
-                            endIndent: Dimensions.width30),
 
-                        Container(
-                          width: double.infinity,
-                          margin: EdgeInsets.only(left: Dimensions.width30,right: Dimensions.width30),
-                          child: PhysicalModel(
-                            color: Colors.white,
-                            elevation: 5,
-                            shadowColor: AppColors.mainColor,
-                            borderRadius: BorderRadius.circular(20),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                InkWell(
-                                  onTap: isLoading ? null : (){
-                                    setState(() {
-                                      deliveryOrder = true;
-                                      PickupOrder = false;
-                                    });
-                                  },
-                                  child: Row(
-                                    children: [
-                                      SmallText(text: 'Deliver order',size: Dimensions.font15),
-                                      Checkbox(value: deliveryOrder, onChanged: isLoading ? null : (value){
-                                        setState(() {
-                                          deliveryOrder = true;
-                                          PickupOrder = false;
-                                        });
-                                      }),
-                                    ],
+
+                          SizedBox(height: Dimensions.height10,),
+                          BigText(text: "Note"),
+                          Divider(color: AppColors.mainColor,
+                              indent: Dimensions.width30,
+                              endIndent: Dimensions.width30),
+                          Container(
+                            height: Dimensions.height10*12,
+                            margin: EdgeInsets.only(left: Dimensions.width30,
+                                right: Dimensions.width30,bottom: Dimensions.height10),
+                            decoration: BoxDecoration(
+                                border: Border.all(width: 1, color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Expanded(
+                                child: TextField(
+                                  onChanged: (value) {},
+                                  controller: userNote,
+                                  enabled: isLoading ? false : true,
+                                  maxLines: 8,
+                                  keyboardType: TextInputType.text,
+                                  decoration: const InputDecoration(
+                                    hintText: "Please Add Note here...",
+                                    border: InputBorder.none,
                                   ),
-                                ),
-                                InkWell(
-                                  onTap: isLoading ? null : (){
-                                    setState(() {
-                                      deliveryOrder = false;
-                                      PickupOrder = true;
-                                    });
-                                  },
-                                  child: Row(
-                                    children: [
-                                      SmallText(text: 'Pickup order',size: Dimensions.font15),
-                                      Checkbox(value: PickupOrder, onChanged: isLoading ? null : (value){
-                                        setState(() {
-                                          deliveryOrder = false;
-                                          PickupOrder = true;
-                                        });
-                                      }),
-                                    ],
-                                  ),
-                                ),
-
-                              ],
-                            ),
+                                )),
                           ),
-                        ),
-
-                        SizedBox(height: Dimensions.height10,),
-                        BigText(text: "User Information"),
-                        Divider(color: AppColors.mainColor,
-                            indent: Dimensions.width30,
-                            endIndent: Dimensions.width30),
-                        Container(
-                          height: 55,
-                          margin: EdgeInsets.only(left: Dimensions.width30,
-                              right: Dimensions.width30),
-                          decoration: BoxDecoration(
-                              border: Border.all(width: 1, color: Colors.grey),
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              SizedBox(
-                                width: 40,
-                                child: Icon(Icons.people),
-                              ),
-                              const Text(
-                                "|",
-                                style: TextStyle(
-                                    fontSize: 33, color: Colors.grey),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Expanded(
-                                  child: TextField(
-                                    onChanged: (value) {},
-                                    enabled: false,
-                                    controller: username,
-                                    keyboardType: TextInputType.text,
-                                    decoration: const InputDecoration(
-                                      border: InputBorder.none,
-                                    ),
-                                  ))
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: Dimensions.height10,),
-                        Container(
-                          height: 55,
-                          margin: EdgeInsets.only(left: Dimensions.width30,
-                              right: Dimensions.width30),
-                          decoration: BoxDecoration(
-                              border: Border.all(width: 1, color: Colors.grey),
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              SizedBox(
-                                width: 40,
-                                child: Icon(Icons.phone_android),
-                              ),
-                              const Text(
-                                "|",
-                                style: TextStyle(
-                                    fontSize: 33, color: Colors.grey),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Expanded(
-                                  child: TextField(
-                                    onChanged: (value) {},
-                                    enabled: false,
-                                    controller: userphone,
-                                    keyboardType: TextInputType.text,
-                                    decoration: const InputDecoration(
-                                      border: InputBorder.none,
-                                      hintText: "+27 82 481 5280",
-                                    ),
-                                  ))
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: Dimensions.height10,),
-
-                      ],
-                    )
-                );
+                        ],
+                      )
+                  );
+                }
               }
-            }
 
+          ),
         ),
       ),
       bottomNavigationBar: Container(
@@ -538,7 +516,7 @@ class _PaymentState extends State<Payment> {
   placeOrderOnPickup(var payWith){
     int orderNumber = random(1000, 999999);
     String foodList = '';
-    List<String> foodUrlList = [];
+    String foodUrlList = '';
     int counter = -1;
     nameOfOrders.forEach((element) async {
       counter++;
@@ -552,23 +530,33 @@ class _PaymentState extends State<Payment> {
         if (mydata!['orderChecked']) {
           DateTime now = DateTime.now();
           DateTime date = DateTime(now.year, now.month, now.day);
+          String dateTime = DateFormat("HH:mm:ss").format(DateTime.now());
+
           foodList +=
               ',' + mydata['productName'] + ' x ${mydata['number']}';
-          foodUrlList.add(mydata['imageUrl']);
+          if (foodUrlList == '')
+            {
+              foodUrlList = mydata['imageUrl'];
+            }else{
+            foodUrlList += "}}?|\|" + mydata['imageUrl'];
+          }
+
           await FirebaseDatabase.instance.ref(
               '${mydata!['branche']}/${userInformation.read('Usernumbers')}-${orderNumber}').set({
             'Accepted delivery': false,
-            'Date': date.toString().replaceAll('00:00:00.000', ''),
+            'Date': date.toString().replaceAll(' 00:00:00.000',' ') + dateTime,
             'Food List': foodList,
             'Food_List_image': foodUrlList,
             'Order_number': '${orderNumber}',
             'Total': total,
-            'Time': '19:16',
-            'company name': mydata['branche'],
+            'Time': dateTime,
+            'companyName': mydata['branche'],
+            'Note' : userNote.text.trim(),
             'ready': false,
             'Placed Order': true,
             'path': '${userInformation.read('Usernumbers')}-${orderNumber}',
             'type': 'Pickup',
+            'user': "?",
             'process': 'pending',
             'payWithCash': payWith,
             'Preparing Food': false
@@ -599,7 +587,7 @@ class _PaymentState extends State<Payment> {
   placeOrderOnDelivery(var payWith){
     int orderNumber = random(1000, 999999);
     String foodList = '';
-    List<String> foodUrlList = [];
+    String foodUrlList = '';
     int counter = -1;
     nameOfOrders.forEach((element) async {
       counter++;
@@ -613,26 +601,36 @@ class _PaymentState extends State<Payment> {
         if (mydata!['orderChecked']) {
           DateTime now = DateTime.now();
           DateTime date = DateTime(now.year, now.month, now.day);
+          String dateTime = DateFormat("HH:mm:ss").format(DateTime.now());
+
           foodList +=
               ',' + mydata['productName'] + ' x ${mydata['number']}';
-          foodUrlList.add(mydata['imageUrl']);
+          if (foodUrlList == '')
+          {
+            foodUrlList = mydata['imageUrl'];
+          }else{
+            foodUrlList += "}}?|\|" + mydata['imageUrl'];
+          }
           await FirebaseDatabase.instance.ref(
               '${mydata!['branche']}/${userInformation.read('Usernumbers')}-${orderNumber}').set({
             'Accepted delivery': false,
-            'Date': date.toString().replaceAll('00:00:00.000', ''),
+            'Date': date.toString().replaceAll(' 00:00:00.000',' ') + dateTime,
             'Food List': foodList,
             'latitude': latitude,
             'longitude': longitude,
             'Food_List_image': foodUrlList,
             'Order_number': '${orderNumber}',
             'Total': total,
-            'Time': '19:16',
-            'company name': mydata['branche'],
+            'Time': dateTime,
+            'Note' : userNote.text.trim(),
+            'DeliveryMan' : '',
+            'companyName': mydata['branche'],
             'ready': false,
             'payWithCash': payWith,
             'Placed Order': true,
             'path': '${userInformation.read('Usernumbers')}-${orderNumber}',
             'type': 'Delivery',
+            'user': "?",
             'process': 'pending',
             'Preparing Food': false
           }).then((value) {

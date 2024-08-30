@@ -12,8 +12,10 @@ class CartController extends GetxController {
   // Add a dict to store the products in the cart.
   var cartProductCounter = 0.obs;
   var cartProductTotal   = 0.obs;
+  var removePrice = 0.obs;
   var addingTocart = 0.obs;
   var checkList = [].obs;
+  var activeImageSlider = 0.obs;
   final userInformation = GetStorage();
 
 
@@ -38,8 +40,10 @@ class CartController extends GetxController {
 
 
     //generating a order number
-    var orderNumber = random(0,999999);
+    //var orderNumber = random(0,999999);
     addingTocart.value = 1;
+
+    print('object2');
 
     DatabaseReference ref = FirebaseDatabase.instance.ref('${userInformation.read('Usernumbers')}/$productName');
 
@@ -58,14 +62,14 @@ class CartController extends GetxController {
           "orderChecked" : true,
         }).then((value){
           addingTocart.value = 0;
-          Get.snackbar(
-            'Added',
-            'The product was successfully added to your cart wish list.',
-            //"You'r trying to add a product that already exist on the cart wish list, ",
-            colorText: Colors.white,
-            backgroundColor: AppColors.mainColor,
-            icon: const Icon(Icons.add_shopping_cart_outlined, color: Colors.white),
-          );
+          //Get.snackbar(
+          //  'Added',
+          //  'The product was successfully added to your cart wish list.',
+          //  //"You'r trying to add a product that already exist on the cart wish list, ",
+          //  colorText: Colors.white,
+          //  backgroundColor: AppColors.mainColor,
+          //  icon: const Icon(Icons.add_shopping_cart_outlined, color: Colors.white),
+          //);
         }).onError((error, stackTrace) {
           addingTocart.value = 0;
           Get.snackbar(

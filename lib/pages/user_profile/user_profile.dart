@@ -26,6 +26,7 @@ class UserProfile extends StatelessWidget {
     username.text   = userInformation.read('Username');
     usernumber.text = userInformation.read('Usernumbers');
     password.text   = userInformation.read('password');
+    print('object ${userInformation.read('profileUrl')}');
 
     return Scaffold(
       body: CustomScrollView(
@@ -60,7 +61,7 @@ class UserProfile extends StatelessWidget {
                       return  Center(child: CircularProgressIndicator(),);
                     } else {
                       return Container(
-                        padding: EdgeInsets.only(left: Dimensions.width30*2,right: Dimensions.width30*2,bottom: Dimensions.height45),
+                        padding: EdgeInsets.only(bottom: Dimensions.height45),
                         child: Column(
                           children: [
                             Padding(
@@ -68,12 +69,13 @@ class UserProfile extends StatelessWidget {
                                   radius: Dimensions.ListViewImgSize120,
                                   backgroundColor: AppColors.mainColor,
                                   child: Container(
-                                    height: 240,
-                                    width: 240,
+                                    height: Dimensions.ListViewImgSize120*2 - 10,
+                                    width: Dimensions.ListViewImgSize120*2 - 10,
                                     decoration: BoxDecoration(
                                       color: Colors.white,
                                        borderRadius: BorderRadius.circular(120),
-                                      image: DecorationImage(image: NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo7CzD_doftOQmpBK5_0dhzlqtnD_Fqe8T432aUzcHTQ&s'))
+                                      image: DecorationImage(image: NetworkImage(
+                                          userInformation.read('profileUrl').toString()))
                                     ),
 
                                   ),
@@ -81,7 +83,138 @@ class UserProfile extends StatelessWidget {
                               padding: EdgeInsets.only(top: Dimensions.height20),
                             ),
                             SizedBox(height: Dimensions.height20,),
+
                             Container(
+                              margin: EdgeInsets.only(left: Dimensions.width20,right: Dimensions.width20,bottom: Dimensions.height20),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(Dimensions.radius30),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      blurRadius: 10,
+                                      spreadRadius: 7,
+                                      offset: const Offset(1, 10),
+                                      color: Colors.grey.withOpacity(0.2),
+                                    )
+                                  ]
+                              ),
+                              child: TextField(
+                                keyboardType: TextInputType.text,
+                                enabled: false,
+                                controller: username,
+                                decoration: InputDecoration(
+                                  hintText: 'username',
+                                  prefixIcon: Icon(Icons.person,color: AppColors.yellowColor,),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(Dimensions.radius30),
+                                      borderSide: const BorderSide(
+                                        width: 1.0,
+                                        color: Colors.white,
+                                      )
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(Dimensions.radius30),
+                                      borderSide: BorderSide(
+                                        width: 1.0,
+                                        color: Colors.white,
+                                      )
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(Dimensions.radius30),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(left: Dimensions.width20,right: Dimensions.width20,bottom: Dimensions.height20),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(Dimensions.radius30),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      blurRadius: 10,
+                                      spreadRadius: 7,
+                                      offset: const Offset(1, 10),
+                                      color: Colors.grey.withOpacity(0.2),
+                                    )
+                                  ]
+                              ),
+                              child: TextField(
+                                enabled: false,
+                                controller: usernumber,
+                                keyboardType: TextInputType.phone,
+                                onChanged: (value){
+                                  //phone = value;
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Phone',
+                                  prefixIcon: Icon(Icons.phone_android,color: AppColors.yellowColor,),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(Dimensions.radius30),
+                                      borderSide: const BorderSide(
+                                        width: 1.0,
+                                        color: Colors.white,
+                                      )
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(Dimensions.radius30),
+                                      borderSide: BorderSide(
+                                        width: 1.0,
+                                        color: Colors.white,
+                                      )
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(Dimensions.radius30),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(left: Dimensions.width20,right: Dimensions.width20,bottom: Dimensions.height10/2),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(Dimensions.radius30),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      blurRadius: 10,
+                                      spreadRadius: 7,
+                                      offset: const Offset(1, 10),
+                                      color: Colors.grey.withOpacity(0.2),
+                                    )
+                                  ]
+                              ),
+                              child: TextField(
+                                keyboardType: TextInputType.text,
+                                controller: password,
+                                enabled: false,
+                                obscureText: true,
+                                enableSuggestions: false,
+                                autocorrect: false,
+                                decoration: InputDecoration(
+                                  hintText: 'Password',
+                                  prefixIcon: Icon(Icons.lock_outline,color: AppColors.yellowColor,),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(Dimensions.radius30),
+                                      borderSide: const BorderSide(
+                                        width: 1.0,
+                                        color: Colors.white,
+                                      )
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(Dimensions.radius30),
+                                      borderSide: BorderSide(
+                                        width: 1.0,
+                                        color: Colors.white,
+                                      )
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(Dimensions.radius30),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            /*Container(
                               height: 55,
                               decoration: BoxDecoration(
                                   border: Border.all(width: 1, color: Colors.grey),
@@ -107,8 +240,7 @@ class UserProfile extends StatelessWidget {
                                       child: TextField(
                                         onChanged: (value) {
                                         },
-                                        enabled: false,
-                                        controller: username,
+
                                         keyboardType: TextInputType.text,
                                         decoration: const InputDecoration(
                                           border: InputBorder.none,
@@ -182,8 +314,7 @@ class UserProfile extends StatelessWidget {
                                       child: TextField(
                                         onChanged: (value) {
                                         },
-                                        controller: password,
-                                        enabled: false,
+
                                         keyboardType: TextInputType.text,
                                         decoration: const InputDecoration(
                                           border: InputBorder.none,
@@ -192,50 +323,49 @@ class UserProfile extends StatelessWidget {
                                       ))
                                 ],
                               ),
+                            ),*/
+                            SizedBox(height: Dimensions.height10),
+                            SizedBox(height: Dimensions.height30,),
+                            Padding(
+                              padding: EdgeInsets.only(left: Dimensions.width30,right: Dimensions.width30),
+                              child: SizedBox(
+                                width: double.infinity,
+                                height: Dimensions.height45*2,
+                                child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        primary: AppColors.mainColor,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10))),
+                                    key: const Key("Send the code"),
+                                    onPressed: () async {
+                                      Get.to(AdderssView());
+                                    },
+                                    child: BigText(text: "Change Address",color: Colors.white,),),
+                              ),
                             ),
                             SizedBox(height: Dimensions.height10),
                             SizedBox(height: Dimensions.height30,),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 45,
-                              child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      primary: AppColors.mainColor,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10))),
-                                  key: const Key("Send the code"),
-                                  onPressed: () async {
-                                    Get.to(AdderssView());
-                                  },
-                                  child: Row(
-                                    children: [
-                                      AppIcon(icon: Icons.location_on),
-                                      SizedBox(width: Dimensions.width30,),
-                                      BigText(text: "Change Address",color: Colors.white,),
-                                    ],
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                  )),
-                            ),
-                            SizedBox(height: Dimensions.height10),
-                            SizedBox(height: Dimensions.height30,),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 45,
-                              child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      primary: Colors.red,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10))),
-                                  key: const Key("Send the code"),
-                                  onPressed: () async {
-                                    userInformation.write('Usernumbers','');
-                                    userInformation.write('password','');
-                                    userInformation.write('Usernumbers','');
-                                    userInformation.write('KeepMeLogin', false);
-                                    userInformation.save();
-                                    Get.to(const Login());
-                                  },
-                                  child: BigText(text: "Login out",color: Colors.white,)),
+                            Padding(
+                              padding: EdgeInsets.only(left: Dimensions.width30,right: Dimensions.width30),
+                              child: SizedBox(
+                                width: double.infinity,
+                                height: Dimensions.height45*2,
+                                child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        primary: Colors.red,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10))),
+                                    key: const Key("Send the code"),
+                                    onPressed: () async {
+                                      userInformation.write('Usernumbers','');
+                                      userInformation.write('password','');
+                                      userInformation.write('Usernumbers','');
+                                      userInformation.write('KeepMeLogin', false);
+                                      userInformation.save();
+                                      Get.to(const Login());
+                                    },
+                                    child: BigText(text: "Login out",color: Colors.white,)),
+                              ),
                             ),
 
                           ],

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:untitled6/utils/colors.dart';
 import 'package:untitled6/utils/dimensions.dart';
 import 'package:untitled6/widgets/big_text.dart';
@@ -13,13 +14,14 @@ import '../../widgets/image_widget.dart';
 import '../../widgets/small_text.dart';
 
 class RecommendedFoodDetails extends StatelessWidget {
-  RecommendedFoodDetails({Key? key, required this.listImage, required this.productName, required this.productPrice, required this.productDscr, required this.brancheName}) : super(key: key);
-  var activeImageSlider = 0;
+  RecommendedFoodDetails({Key? key, required this.listImage, required this.ProductName, required this.ProductSelling, required this.ProductDescription, required this.brancheName, required this.ProductQuantity}) : super(key: key);
+  var activeIndex = 0;
   final List<String> listImage;
-  final String productName;
-  final int productPrice;
-  final String productDscr;
+  final String ProductName;
+  final int ProductSelling;
+  final String ProductDescription;
   final String brancheName;
+  final String ProductQuantity;
 
   final CartController cartController = Get.put(CartController());
 
@@ -27,14 +29,23 @@ class RecommendedFoodDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    cartController.setValue(productPrice);
+    cartController.setValue(ProductSelling);
     cartController.updateCart();
+    cartController.activeImageSlider.value = 0;
     return SafeArea(
       child: Scaffold(
         body: CustomScrollView(
           slivers: [
             SliverAppBar(
-              toolbarHeight: 100,
+              toolbarHeight: Dimensions.height45*2,
+              leading: Padding(
+                padding: EdgeInsets.only(left: Dimensions.width20,right: Dimensions.width20-5,top: 1,bottom: 1),
+                child: InkWell(
+                  onTap: (){
+                    Navigator.pop(context);
+                  },
+                    child: AppIcon(icon: Icons.arrow_back_ios_new_outlined,iconColor: AppColors.mainColor,)),
+              ),
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -43,7 +54,7 @@ class RecommendedFoodDetails extends StatelessWidget {
                   InkWell(child: Badge(
                     largeSize: Dimensions.iconSize15,
                     label: Obx(() => Text(cartController.cart.value.toString())),
-                    child: AppIcon(icon: Icons.shopping_cart_outlined,),
+                    child: AppIcon(icon: Icons.shopping_cart_outlined,iconColor: AppColors.mainColor,),
                   ),onTap: () => Navigator.pushNamed(context, 'cart'),)
                 ],
               ),
@@ -52,20 +63,20 @@ class RecommendedFoodDetails extends StatelessWidget {
                 child: Container(
                   child: Column(
                     children: [
-                      Center(child: BigText(text: productName,size: Dimensions.font26,)),
+                      Center(child: BigText(text: ProductName,size: Dimensions.font26,)),
                       SizedBox(height: Dimensions.height10,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           InkWell(child: AppIcon(icon: Icons.remove,backgroundColor: AppColors.mainColor,iconColor: Colors.white),
                           onTap: () {
-                            cartController.decrement(productPrice);
+                            cartController.decrement(ProductSelling);
                           } ,
                           ),
-                          Obx(() => BigText(text: "\R" + productPrice.toString() + " x " + cartController.cartProductCounter.toString()),),
+                          Obx(() => BigText(text: "\R" + ProductSelling.toString() + " x " + cartController.cartProductCounter.toString()),),
                           InkWell(child: AppIcon(icon: Icons.add,backgroundColor: AppColors.mainColor,iconColor: Colors.white),
                           onTap: (){
-                            cartController.increment(productPrice);
+                            cartController.increment(ProductSelling);
 
                           },
                           )
@@ -87,7 +98,7 @@ class RecommendedFoodDetails extends StatelessWidget {
               ),
               pinned: true,
               backgroundColor: AppColors.mainColor,
-              expandedHeight: 300,
+              expandedHeight: Dimensions.ListViewImgSize120*3,
               flexibleSpace: FlexibleSpaceBar(
                 background: buildSliderImage(listImage),
               ),
@@ -132,8 +143,26 @@ class RecommendedFoodDetails extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: Dimensions.height10,),
-                      BigText(text: 'Introduct'),
-                      ExpendableTextWidget(text: productDscr == null ? '' : productDscr,),
+                      ProductQuantity == '0' ? Row(
+                        children: [
+                          BigText(text: 'Quantity'),
+                          SizedBox(width: Dimensions.width10,),
+                          BigText(text: ':'),
+                          SizedBox(width: Dimensions.width10,),
+                          SmallText(text: 'Out of stock',size: Dimensions.font20,),
+                        ],
+                      ) :  Row(
+                        children: [
+                          BigText(text: 'Quantity'),
+                          SizedBox(width: Dimensions.width10,),
+                          BigText(text: ':'),
+                          SizedBox(width: Dimensions.width10,),
+                          SmallText(text: '${ProductQuantity}',size: Dimensions.font20,),
+                        ],
+                      ),
+                      SizedBox(height: Dimensions.height10,),
+                      BigText(text: 'Description'),
+                      ExpendableTextWidget(text: ProductDescription == null ? '' : ProductDescription,),
                       SizedBox(height: Dimensions.height20,)
                     ],
                   )),
@@ -160,7 +189,12 @@ class RecommendedFoodDetails extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10))),
                 key: const Key("Send the code"),
                 onPressed: () async {
-                  cartController.addToCart(brancheName,productName,productPrice,listImage[0]);
+                  if (ProductQuantity != '0') {
+                    cartController.addToCart(
+                        brancheName, ProductName, ProductSelling, listImage[0]);
+                  }else{
+                    Get.snackbar('Out of stock', "This product is out of stock, you cant place order or add to cart");
+                  }
                 },
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -221,8 +255,7 @@ class RecommendedFoodDetails extends StatelessWidget {
               autoPlayAnimationDuration: const Duration(seconds: 2),
               enlargeStrategy: CenterPageEnlargeStrategy.height,
               onPageChanged: (index, reason){
-                activeImageSlider = index;
-
+                  cartController.activeImageSlider.value = index;
               },
             ),
             itemCount: src.length,
@@ -244,22 +277,31 @@ class RecommendedFoodDetails extends StatelessWidget {
 
           ),
         ),
-        /*Align(
+        Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 65),
-              child: buildSliderImageIndicator(),
+              padding: EdgeInsets.fromLTRB(0, 0, 0, Dimensions.bottomHeightBar120),
+              child: Obx(() => buildSliderImageIndicator(),)
             )
-        ),*/
+        )
       ],
     );
   }
-  /*Widget buildSliderImageIndicator() => AnimatedSmoothIndicator(
+  Widget buildSliderImageIndicator() => AnimatedSmoothIndicator(
     key: const Key('AnimatedSmoothIndicator'),
     count: listImage.length,
-    activeIndex: activeImageSlider,
-    //effect: const WormEffect(),
-  );*/
+    activeIndex: cartController.activeImageSlider.value,
+    effect: SlideEffect(
+        spacing:  Dimensions.width10,
+        dotColor:  Colors.grey,
+        //radius:  4.0,
+        //dotWidth:  24.0,
+        //dotHeight:  16.0,
+        //paintStyle:  PaintingStyle.stroke,
+        //strokeWidth:  1.5,
+        activeDotColor:  AppColors.mainColor
+    ),
+  );
   Widget buildImages() => GridView.builder(
     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 2,

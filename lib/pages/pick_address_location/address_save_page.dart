@@ -24,7 +24,7 @@ class AdderssView extends StatefulWidget {
 }
 
 class _AdderssViewState extends State<AdderssView> {
-  final box = GetStorage();
+  final userInformation = GetStorage();
   final streetName = TextEditingController();
   final CityName = TextEditingController();
   final stateName = TextEditingController();
@@ -42,6 +42,7 @@ class _AdderssViewState extends State<AdderssView> {
     // TODO: implement initState
     super.initState();
     pickupPostion = _getCurrentLocation();
+
     Timer.periodic(Duration(seconds: 5), (timer) {setState(() {});});
   }
 
@@ -52,6 +53,14 @@ class _AdderssViewState extends State<AdderssView> {
         slivers: [
           SliverAppBar(
             toolbarHeight: Dimensions.bottomHeightBar120 - Dimensions.height20*2,
+            leading: Padding(
+              padding: EdgeInsets.only(left: Dimensions.width20,right: Dimensions.width20-5,top: Dimensions.width10,bottom: Dimensions.width10),
+              child: InkWell(
+                  onTap: (){
+                    Navigator.pop(context);
+                  },
+                  child: AppIcon(icon: Icons.arrow_back_ios_new_outlined,iconColor: AppColors.mainColor,)),
+            ),
             bottom: PreferredSize(
               preferredSize: Size.fromHeight(Dimensions.height30),
               child: Container(
@@ -74,12 +83,12 @@ class _AdderssViewState extends State<AdderssView> {
           ),
           SliverToBoxAdapter(
               child: StreamBuilder(
-                  stream: FirebaseFirestore.instance.collection('AppUsers').doc('+27824815280').snapshots(),
+                  stream: FirebaseFirestore.instance.collection('AppUsers').doc('${userInformation.read('Usernumbers')}').snapshots(),
                   builder: (context,snapshot) {
                     if (!snapshot.hasData) {
                       return  Center(child: CircularProgressIndicator(),);
                     } else {
-                      return box.read("SavedAllAderss") == null ? Container( height: Dimensions.screenHeight - Dimensions.height45, child: Center(child: BigText(text: 'Please Add Delivery Adderss'),)) : Container(
+                      return userInformation.read("SavedAllAderss") == null ? Container( height: Dimensions.screenHeight - Dimensions.height45, child: Center(child: BigText(text: 'Please Add Delivery Adderss'),)) : Container(
                         padding: EdgeInsets.only(left: Dimensions.width30*2,right: Dimensions.width30*2,bottom: Dimensions.height45),
                         child:  Column(
                           children: [
@@ -126,8 +135,8 @@ class _AdderssViewState extends State<AdderssView> {
                             ),
                             Divider(height: Dimensions.height30,color: AppColors.mainColor,endIndent: Dimensions.width10),
                             Column(
-                              children: List.generate(box.read("SavedAllAderss").toString().split('|').length, (index) {
-                                var showAdderss = box.read("SavedAllAderss").toString().split('|')[index].split(',');
+                              children: List.generate(userInformation.read("SavedAllAderss").toString().split('|').length, (index) {
+                                var showAdderss = userInformation.read("SavedAllAderss").toString().split('|')[index].split(',');
                                 return Padding(
                                   padding: EdgeInsets.only(top: Dimensions.height10),
                                   child: PhysicalModel(
@@ -158,7 +167,7 @@ class _AdderssViewState extends State<AdderssView> {
                                                           children: [
                                                             ElevatedButton(
                                                                 onPressed: (){
-                                                                  FirebaseFirestore.instance.collection('AppUsers').doc('${snapshot.data!.get('phone_numbers')}').update(
+                                                                  FirebaseFirestore.instance.collection('AppUsers').doc('${userInformation.read('Usernumbers')}').update(
                                                                       {
                                                                         'AdderssUsed' : showAdderss.toString().replaceFirst('[', '').replaceFirst(']', '',showAdderss.length-1)
                                                                       });
@@ -172,7 +181,7 @@ class _AdderssViewState extends State<AdderssView> {
                                                             ElevatedButton(
                                                                 onPressed: (){
                                                                   var deleteAdderss = showAdderss.toString().replaceFirst('[', '').replaceFirst(']', '',showAdderss.length-1);
-                                                                  var boxRemoveAdderss = box.read('SavedAllAderss').toString();
+                                                                  var boxRemoveAdderss = userInformation.read('SavedAllAderss').toString();
 
                                                                   print(boxRemoveAdderss.contains(deleteAdderss.replaceAll(', ', ',')));
                                                                   print(deleteAdderss.replaceAll(', ', ','));
@@ -191,8 +200,8 @@ class _AdderssViewState extends State<AdderssView> {
                                                                   }
 
                                                                   setState(() {
-                                                                    box.write('SavedAllAderss', boxRemoveAdderss);
-                                                                    box.save();
+                                                                    userInformation.write('SavedAllAderss', boxRemoveAdderss);
+                                                                    userInformation.save();
                                                                   });
                                                                 },
                                                                 style: ElevatedButton.styleFrom(
@@ -512,16 +521,16 @@ class _AdderssViewState extends State<AdderssView> {
 
                                                   var addAdderss = '';
                                                   couter++;
-                                                  if (box.read("SavedAllAderss") != null){
-                                                    addAdderss = box.read("SavedAllAderss");
+                                                  if (userInformation.read("SavedAllAderss") != null){
+                                                    addAdderss = userInformation.read("SavedAllAderss");
                                                   }
                                                   if (addAdderss == ''){
                                                     addAdderss = addAdderss + '${streetName.text.trim()},${stateName.text.trim()},${CityName.text.trim()},${zipCode.text.trim()},${latLngPickUp.longitude},${latLngPickUp.latitude}';
                                                   }else{
                                                     addAdderss = addAdderss + '|${streetName.text.trim()},${stateName.text.trim()},${CityName.text.trim()},${zipCode.text.trim()},${latLngPickUp.longitude},${latLngPickUp.latitude}';
                                                   }
-                                                  box.write("SavedAllAderss", addAdderss);
-                                                  box.save();
+                                                  userInformation.write("SavedAllAderss", addAdderss);
+                                                  userInformation.save();
                                                   setState(() {
                                                     Navigator.pop(context);
                                                     streetName.clear();

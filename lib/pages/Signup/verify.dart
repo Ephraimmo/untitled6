@@ -9,6 +9,7 @@ import '../../controllers/user_controller.dart';
 import '../../utils/colors.dart';
 import '../../utils/dimensions.dart';
 import '../../widgets/big_text.dart';
+import '../login/login.dart';
 
 class MyVerify extends StatefulWidget {
   const MyVerify({Key? key}) : super(key: key);
@@ -52,11 +53,12 @@ class _MyVerifyState extends State<MyVerify> {
       ),
     );
 
+
+
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: AppColors.mainColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.mainColor,
         leading: IconButton(
           onPressed: isLoading ? null : () {
             Navigator.pop(context);
@@ -69,125 +71,150 @@ class _MyVerifyState extends State<MyVerify> {
         elevation: 0,
       ),
       body: Container(
-        margin: EdgeInsets.only(left: 25, right: 25),
-        alignment: Alignment.center,
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                'assets/img1.png',
-                width: 150,
-                height: 150,
-              ),
-              const SizedBox(
-                height: 25,
-              ),
-              const Text(
-                "Phone Verification",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const Text(
-                "We need to register your phone without getting started!",
-                style: TextStyle(
-                  fontSize: 16,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              Pinput(
-                length: 6,
-                 //defaultPinTheme: defaultPinTheme,
-                 focusedPinTheme: focusedPinTheme,
-                 submittedPinTheme: submittedPinTheme,
-                onChanged: (value) => smsCode = value,
-                showCursor: true,
-                onCompleted: (pin) => print(pin),
-              ),
-              SizedBox(
-                height: Dimensions.height10/8,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              Stack(
                 children: [
-                  const Text("Keep me login?",
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  Opacity(
+                      opacity: 0.3,
+                      child: ClipPath(
+                        clipper: WaveClipper(),
+                        child: Container(
+                          height: Dimensions.bottomHeightBar120*2 + Dimensions.height45*5 + 10,
+                          color: AppColors.iconColor2,
+                        ),
+                      )
                   ),
-                  Checkbox(// The named parameter 'title' isn't defined.
-                    value: KeepMeLogin,
-                    onChanged: !isLoading ? (newValue) {
-                      setState(() {
-                        KeepMeLogin = newValue!;
-                      });
-                    } : null,
+                  ClipPath(
+                    clipper: WaveClipper(),
+                    child: Container(
+                      height: Dimensions.bottomHeightBar120*2 + Dimensions.height45,
+                      decoration: BoxDecoration(
+                        color: AppColors.mainColor,
+                      ),
+                    ),
                   ),
                 ],
               ),
               SizedBox(
-                width: double.infinity,
-                height: 45,
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        primary: Colors.green.shade600,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10))),
-                        onPressed: isLoading ? null : () async {
-                            setState(() {
-                              isLoading = !isLoading;
-                            });
-                            try{
-                              // Create a PhoneAuthCredential with the code
-                              AuthCredential credential = PhoneAuthProvider.credential(verificationId: MyPhone.verify, smsCode: smsCode);
+                height: 20,
+              ),
+              const Text(
+                "Verify Numbers",
+                style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold,color: Colors.black),
+              ),
+              Text(
+                "The one and only place you get the best faster service!",
+                style: TextStyle(
+                    fontSize: 16,
+                    color: AppColors.paraColor
+                ),
+                textAlign: TextAlign.center,
+              ),
 
-                              // Sign the user in (or link) with the credential
-                              await auth.signInWithCredential(credential);
-
-                              users.doc(MyPhone.phone_number).set({
-                                'Username' : MyPhone.username,
-                                'phone_numbers' : MyPhone.phone_number,
-                                'password' : MyPhone.password,
-                                'AdderssUsed' : '',
-                                'profile_picture' : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo7CzD_doftOQmpBK5_0dhzlqtnD_Fqe8T432aUzcHTQ&s'
-                              }).then((value) {
-                                userController.Username    = MyPhone.username;
-                                userController.password    = MyPhone.password;
-                                userController.Usernumbers = MyPhone.phone_number;
-                                box.write('Username',
-                                    userController.Usernumbers);
-                                box.write('password',
-                                    userController.password);
-                                box.write('Usernumbers',
-                                    userController.Usernumbers);
-                                box.write('KeepMeLogin', KeepMeLogin);
-                                box.save();
-
-                                Navigator.pushNamedAndRemoveUntil(context, "home", (route) => false);
-                              });
-
-                            }catch(e){
-                              print("Error: " + e.hashCode.toString());
+              const SizedBox(
+                height: 30,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: Dimensions.width20),
+                child: Pinput(
+                  length: 6,
+                   //defaultPinTheme: defaultPinTheme,
+                   focusedPinTheme: focusedPinTheme,
+                   submittedPinTheme: submittedPinTheme,
+                  onChanged: (value) => smsCode = value,
+                  showCursor: true,
+                  onCompleted: (pin) => print(pin),
+                ),
+              ),
+              SizedBox(
+                height: Dimensions.height10/8,
+              ),
+              Padding(
+                padding: EdgeInsets.only(right: Dimensions.width20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const Text("Keep me login?",
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    Checkbox(// The named parameter 'title' isn't defined.
+                      value: KeepMeLogin,
+                      onChanged: !isLoading ? (newValue) {
+                        setState(() {
+                          KeepMeLogin = newValue!;
+                        });
+                      } : null,
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: Dimensions.width30),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: Dimensions.height45*2,
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          primary: Colors.green.shade600,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10))),
+                          onPressed: isLoading ? null : () async {
 
                               setState(() {
                                 isLoading = !isLoading;
                               });
-                            }
+                              try{
+                                // Create a PhoneAuthCredential with the code
+                                AuthCredential credential = PhoneAuthProvider.credential(verificationId: MyPhone.verify, smsCode: smsCode);
 
-                        },
-                    child: !isLoading ? BigText(text: "Verify Phone Number", color: Colors.white,)
-                        : Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        BigText(text: "Please wait", color: Colors.white,),
-                        SizedBox(width: Dimensions.width20,),
-                        const CircularProgressIndicator(color: Colors.white,),
-                      ],
-                    ), //const Text("")
+                                // Sign the user in (or link) with the credential
+                                await auth.signInWithCredential(credential);
+
+                                users.doc(MyPhone.phone_number).set({
+                                  'Username' : MyPhone.username,
+                                  'phone_numbers' : MyPhone.phone_number,
+                                  'password' : MyPhone.password,
+                                  'AdderssUsed' : '',
+                                  'profile_picture' : box.read('profileUrl').toString(),
+                                }).then((value) {
+                                  userController.Username    = MyPhone.username;
+                                  userController.password    = MyPhone.password;
+                                  userController.Usernumbers = MyPhone.phone_number;
+                                  box.write('Username',
+                                      userController.Usernumbers);
+                                  box.write('password',
+                                      userController.password);
+                                  box.write('Usernumbers',
+                                      userController.Usernumbers);
+                                  box.write('KeepMeLogin', KeepMeLogin);
+                                  box.save();
+
+                                  Navigator.pushNamedAndRemoveUntil(context, "home", (route) => false);
+                                });
+
+                              }catch(e){
+                                print("Error: " + e.hashCode.toString());
+
+                                setState(() {
+                                  isLoading = !isLoading;
+                                });
+                              }
+
+                          },
+                      child: !isLoading ? BigText(text: "Verify Phone Number", color: Colors.white,)
+                          : Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          BigText(text: "Please wait", color: Colors.white,),
+                          SizedBox(width: Dimensions.width20,),
+                          const CircularProgressIndicator(color: Colors.white,),
+                        ],
+                      ), //const Text("")
+                  ),
                 ),
               ),
               SizedBox(

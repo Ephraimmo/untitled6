@@ -31,6 +31,7 @@ class CartProductsDetails extends StatelessWidget {
   Map<String, dynamic>? paymentIntent;
   final userInformation = GetStorage();
 
+
   @override
   Widget build(BuildContext context) {
     cartProducController.updateTotal();
@@ -60,6 +61,7 @@ class CartProductsDetails extends StatelessWidget {
             Map? mydata = snapshot.value as Map?;
             mydata!['key'] = snapshot.key;
 
+            print('object');
             if (index == 0){
               nameOfOrders.clear();
               nameOfOrders.add(mydata['productName']);
@@ -67,7 +69,6 @@ class CartProductsDetails extends StatelessWidget {
               nameOfOrders.add(mydata['productName']);
             }
 
-            print("nameOfOrders: ${nameOfOrders.length}");
 
 
 

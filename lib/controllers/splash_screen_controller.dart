@@ -10,8 +10,8 @@ class SplashScreenControllerNew extends GetxController {
 
   startSplashScreen(context) async {
     await Future.delayed(const Duration(seconds: 3));
-    Get.to(const Login(), transition: Transition.fadeIn);
-    if (!KeepMe.read('KeepMeLogin'))
+    print("object");
+    if (!KeepMe.read('KeepMeLogin') &&  KeepMe.read('KeepMeLogin') != null)
       Navigator.pushNamedAndRemoveUntil(context, 'login', (route) => false);
     else
       Navigator.pushNamedAndRemoveUntil(context, 'home', (route) => false);

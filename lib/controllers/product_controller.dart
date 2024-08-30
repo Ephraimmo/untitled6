@@ -59,8 +59,10 @@ class CartProducController extends GetxController {
       productTotal.value = 0;
       Map? mydata = event.snapshot.value as Map?;
       mydata!.values.forEach((element) {
-        int price = element['price'] * element['number'];
-        productTotal.value = productTotal.value + price;
+        if (element['orderChecked']){
+          int price = element['price'] * element['number'];
+          productTotal.value = productTotal.value + price;
+        }
       });
     });
   }
