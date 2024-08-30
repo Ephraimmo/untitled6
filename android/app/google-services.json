@@ -153,6 +153,64 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:218236841715:android:cb1537b6c8532a70701186",
+        "android_client_info": {
+          "package_name": "com.example.untitled12"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "218236841715-6jleoab54gn1ok9l6ovkg7dgn6pmv452.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKxBsjBx3uAPQFlQunrZcpovdsqScTtaI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "218236841715-6jleoab54gn1ok9l6ovkg7dgn6pmv452.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:218236841715:android:0e560c82f26cc460701186",
+        "android_client_info": {
+          "package_name": "com.example.untitled13"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "218236841715-6jleoab54gn1ok9l6ovkg7dgn6pmv452.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKxBsjBx3uAPQFlQunrZcpovdsqScTtaI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "218236841715-6jleoab54gn1ok9l6ovkg7dgn6pmv452.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:218236841715:android:e094d7d941d198a6701186",
         "android_client_info": {
           "package_name": "com.example.untitled5"
@@ -185,6 +243,35 @@
         "mobilesdk_app_id": "1:218236841715:android:48e3d96341d138e1701186",
         "android_client_info": {
           "package_name": "com.example.untitled6"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "218236841715-6jleoab54gn1ok9l6ovkg7dgn6pmv452.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKxBsjBx3uAPQFlQunrZcpovdsqScTtaI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "218236841715-6jleoab54gn1ok9l6ovkg7dgn6pmv452.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:218236841715:android:cdb8065721df9398701186",
+        "android_client_info": {
+          "package_name": "com.karabomotlhasedi.kasimonateapp.app"
         }
       },
       "oauth_client": [
